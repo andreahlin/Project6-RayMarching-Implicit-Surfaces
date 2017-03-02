@@ -61,7 +61,7 @@ export default function Machine(renderer, scene, camera) {
             }
         },
         vertexShader: require('./glsl/pass-vert.glsl'),
-        fragmentShader: require('./glsl/rayMarch-frag.glsl')
+        fragmentShader: require('./glsl/machine-frag.glsl')
     });
     shaderPass.renderToScreen = true;
     composer.addPass(shaderPass);

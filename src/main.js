@@ -48,7 +48,7 @@ window.addEventListener('load', function() {
     var gui = new DAT.GUI();
 
     var options = {
-        strategy: 'Ray Marching'
+        strategy: 'Machine'
     }
 
     gui.add(options, 'strategy', ['Proxy Geometry', 'Ray Marching', 'Machine']);
@@ -90,6 +90,7 @@ window.addEventListener('load', function() {
         } else if (options.strategy === 'Machine') {
             machine.render(scene, camera);
         }
+        camera.updateProjectionMatrix
         stats.end();
         requestAnimationFrame(tick);
     })();

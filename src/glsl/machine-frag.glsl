@@ -26,7 +26,7 @@ varying vec3 f_position;
 
 //-------------------------------------------------------------------------
 float sphereSDF(vec3 p) {
-	return length(p) - 1.0; 
+	return length(p) - 1.5; 
 }
 
 float cylinderSDF(vec3 p, vec3 c) {
@@ -61,11 +61,6 @@ float hexPrisSDF( vec3 p, vec2 h )
     return max(q.z - h.y, max((q.x * 0.866025 + q.y * 0.5), q.y) - h.x);
 }
 
-// total scene SDF
-float sceneSDF(vec3 p) {
-	return torusSDF(p, vec2(1.0,1.0)); 
-}
-
 // operators
 float opIntersect(float d1, float d2) {
 	return max(d1, d2);
@@ -80,9 +75,17 @@ float opSubtract(float d1, float d2) {
 }
 
 // vec3 opTranslate(vec3 p, mat4 m) {
-// 	vec3 q = invert(m) * p;
+// 	vec3 q = inverse(m) * p;
 // 	return sceneSDF(q); 
 // }
+
+// total scene SDF
+float sceneSDF(vec3 point) {
+		float dist1 = triPrisSDF(point, vec2(0.5,3.0));
+		float dist2 = opUnion(boxSDF(point, vec3(0.5,2.0,0.5)), sphereSDF(point));
+		float dist = opSubtract(dist1, dist2);
+	return dist;
+}
 
 float opScale(vec3 p, float s) {
 	return sceneSDF(p/s) * s; 
@@ -99,7 +102,8 @@ vec3 estNormal(vec3 p) {
 }
 //-----------------------------------------------------------------------------------------
 void main() {
-	// trying to get a sphere to show up... sad 
+
+	// RAYMARCHING
 	float t = 0.1; 
 	float EPSILON = 0.001; 
 	float end = 100.0; 
@@ -125,15 +129,11 @@ void main() {
 	vec3 ray_direction = normalize(p - eye);
 	vec3 point = eye + t * ray_direction; 
 
-	// once more, let us try a different way once more ) : 
-	// vec4 p = u_cameraViewInv * u_cameraProjectionInv * vec4(sx, sy, 0.5, 1.0);
-	// vec3 eye = u_cameraPosition;
-	// vec3 ray_direction = normalize(p.xyz - eye);
-	// vec3 point = eye + t * ray_direction; 	
-
 	for (int i = 0; i < 100; i++) {
 		point = eye + t * ray_direction; 
-		float dist = torusSDF(point, vec2(1.0,1.0));
+		float dist1 = triPrisSDF(point, vec2(0.5,3.0));
+		float dist2 = opUnion(boxSDF(point, vec3(0.5,2.0,0.5)),sphereSDF(point));
+		float dist = opSubtract(dist1, dist2);
 		if (dist < EPSILON) {
 			// then you're inside the scene surface
 			// color the fragment
@@ -146,7 +146,7 @@ void main() {
 		}
 	} 
 
-	// some lame lambertian lighting, with a light source from the camera
+	// some lame lambertian lighting, light source from the camera
 	vec3 normal = estNormal(point); 
 	float d = clamp(dot(normal, normalize(u_cameraPosition - f_position)), 0.0, 1.0);
 
