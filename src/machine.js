@@ -3,7 +3,7 @@ const EffectComposer = require('three-effectcomposer')(THREE)
 
 import {PROXY_BUFFER_SIZE} from './proxy_geometry'
 
-export default function RayMarcher(renderer, scene, camera) {
+export default function Machine(renderer, scene, camera) {
     var composer = new EffectComposer(renderer);
 
     var m = new THREE.Matrix4();  

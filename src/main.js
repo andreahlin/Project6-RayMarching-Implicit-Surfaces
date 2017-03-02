@@ -7,6 +7,7 @@ import DAT from 'dat-gui'
 import Stats from 'stats-js'
 import ProxyGeometry, {ProxyMaterial} from './proxy_geometry'
 import RayMarcher from './rayMarching'
+import Machine from './machine'
 
 var BoxGeometry = new THREE.BoxGeometry(1, 1, 1);
 var SphereGeometry = new THREE.SphereGeometry(1, 32, 32);
@@ -28,6 +29,9 @@ window.addEventListener('load', function() {
     renderer.setClearColor(0x999999, 1.0);
     document.body.appendChild(renderer.domElement);
 
+    // console.log("width: " + window.innerWidth);
+    // console.log("height: " + window.innerHeight);
+
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.enableZoom = true;
@@ -44,10 +48,10 @@ window.addEventListener('load', function() {
     var gui = new DAT.GUI();
 
     var options = {
-        strategy: 'Proxy Geometry'
+        strategy: 'Ray Marching'
     }
 
-    gui.add(options, 'strategy', ['Proxy Geometry', 'Ray Marching']);
+    gui.add(options, 'strategy', ['Proxy Geometry', 'Ray Marching', 'Machine']);
 
     scene.add(new THREE.AxisHelper(20));
     scene.add(new THREE.DirectionalLight(0xffffff, 1));
@@ -67,11 +71,13 @@ window.addEventListener('load', function() {
 
     scene.add(proxyGeometry.group);
 
-    camera.position.set(5, 10, 15);
+    // WHY ISNT CAMERA POSITION UPDATING???? 
+    camera.position.set(10, 10, 10);
     camera.lookAt(new THREE.Vector3(0,0,0));
     controls.target.set(0,0,0);
     
     var rayMarcher = new RayMarcher(renderer, scene, camera);
+    var machine = new Machine(renderer, scene, camera); 
 
     (function tick() {
         controls.update();
@@ -81,6 +87,8 @@ window.addEventListener('load', function() {
             renderer.render(scene, camera);
         } else if (options.strategy === 'Ray Marching') {
             rayMarcher.render(proxyGeometry.buffer);
+        } else if (options.strategy === 'Machine') {
+            machine.render(scene, camera);
         }
         stats.end();
         requestAnimationFrame(tick);
